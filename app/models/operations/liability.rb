@@ -1,49 +1,38 @@
 # frozen_string_literal: true
 
 module Operations
-  # {Asset} is a balance sheet operation
+  # {Liability} is a balance sheet operation
   class Liability < Base
     belongs_to :ref, polymorphic: true
     belongs_to :currency, foreign_key: :currency_id
 
-    def self.debit!(entry)
-      # Parsing entry
-      attributes = { ref: entry, member_id: entry.member_id }
-      if entry.class.superclass.to_s.in?(%w[Deposit Withdraw])
-        attributes[:currency_id] = entry.currency_id
-        attributes[:debit] = entry.amount
-        attributes[:code] = entry.currency.coin? ? 102 : 101
-      elsif entry.class.superclass.to_s.in?(%w[Order])
-        raise 'Wrong entry!'
-      else
-        raise 'Wrong entry!'
-      end
-      # Create with reference
-      create!(attributes)
+    def self.debit!(attrs, amount)
+      # Create with reference and correct attrs
+      attrs[:member_id] = attrs[:ref].member_id unless attrs[:ref].is_a?(Trade)
+      attrs.delete(:credit)
+      attrs[:debit] = amount
+      create!(attrs)
     end
 
-    def self.credit!(entry)
-      # Parsing entry
-      attributes = { ref: entry, member_id: entry.member_id }
-      if entry.class.superclass.to_s.in?(%w[Deposit Withdraw])
-        attributes[:currency_id] = entry.currency_id
-        attributes[:debit] = entry.amount
-        attributes[:code] = entry.currency.coin? ? 102 : 101
-      elsif entry.class.superclass.to_s.in?(%w[Order])
-        raise 'Wrong entry!'
-      else
-        raise 'Wrong entry!'
-      end
-
-      # Create with reference
-      create!(attributes)
+    def self.credit!(attrs, amount)
+      # Create with reference and correct attrs
+      attrs[:member_id] = attrs[:ref].member_id unless attrs[:ref].is_a?(Trade)
+      attrs.delete(:debit)
+      attrs[:credit] = amount
+      create!(attrs)
     end
 
-    def self.transfer!(entry)
-      # Parsing entry
-
+    def self.transfer!(main, locked, attrs)
+      if attrs[:ref].is_a?(Order)
+        attrs[:code] = main
+        debit!(attrs, attrs[:ref].locked)
+        attrs[:code] = locked
+        credit!(attrs, attrs[:ref].locked)
+      else
+        raise 'Not implemented!'
+        # credit!(attrs, attrs[:ref].volume)
+      end
       # Create with reference
-      create!(attributes)
     end
   end
 end

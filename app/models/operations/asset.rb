@@ -6,25 +6,18 @@ module Operations
     belongs_to :ref, polymorphic: true
     belongs_to :currency, foreign_key: :currency_id
 
-    def self.debit!(entry)
-      # Parsing entry
-      #attributes = { ref: entry }
-      #attributes[:currency_id] = entry.currency_id
-      #attributes[:code] = entry.currency.coin? ? 102 : 101
+    validates :code, numericality: { greater_than_or_equal_to: 101, less_than: 199 }
 
+
+    def self.debit!(attributes, amount)
       # Create with reference and correct attributes
-      attributes[:debit] = entry.amount
+      attributes[:debit] = amount
       create!(attributes)
     end
 
-    def self.credit!(entry)
-      # Parsing entry
-      attributes = { ref: entry }
-      attributes[:currency_id] = entry.currency_id
-      attributes[:credit] = entry.amount
-      attributes[:code] = entry.currency.coin? ? 102 : 101
-
+    def self.credit!(attributes, amount)
       # Create with reference and correct attributes
+      attributes[:credit] = amount
       create!(attributes)
     end
 
