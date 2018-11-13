@@ -52,17 +52,16 @@ module AccountingService
   def self.record_order(order)
     raise ArgumentError unless order.is_a?(Order)
 
-    if order.valid?
-      order.transaction do
-        # 1- update member account balance
-        # 2- create transfer from main to locked account liability
-        currency = define_currency(order)
-        attrs = { ref: order }
-        attrs[:currency_id] = currency.id
-        main = currency.coin? ? 202 : 201
-        locked = currency.coin? ? 212 : 211
-        Operations::Liability.transfer!(main, locked, attrs)
-      end
+    return unless order.valid?
+    order.transaction do
+      # 1- update member account balance
+      # 2- create transfer from main to locked account liability
+      currency = define_currency(order)
+      attrs = { ref: order }
+      attrs[:currency_id] = currency.id
+      main = currency.coin? ? 202 : 201
+      locked = currency.coin? ? 212 : 211
+      Operations::Liability.transfer!(main, locked, attrs)
     end
   end
 
@@ -75,6 +74,13 @@ module AccountingService
         bid = trade.bid
         ask = trade.ask
         attrs = { ref: trade }
+
+        # Revenues for platform trading fees
+        fee_for_bid = calculate_fee(bid)
+        fee_for_ask = calculate_fee(ask)
+        Operations::Revenue.credit!(attrs_for_fee(attrs, bid), fee_for_bid)
+        Operations::Revenue.credit!(attrs_for_fee(attrs, ask), fee_for_ask)
+        
         # Liabilities for recieved amount from trade
         Operations::Liability.credit!(attrs_for_bid(attrs, bid, :credit), bid.funds_received)
         Operations::Liability.credit!(attrs_for_ask(attrs, ask, :credit), ask.funds_received)
@@ -83,7 +89,6 @@ module AccountingService
         Operations::Liability.debit!(attrs_for_bid(attrs, bid, :debit), ask.funds_received)
         Operations::Liability.debit!(attrs_for_ask(attrs, ask, :debit), bid.funds_received)
 
-        # Revenues for platform trading fees
         # Operations::Liability.transfer!(locked, main, attrs_bid)
         # 1- update member account balance
         # 2- create debit locked liability for order amount
@@ -91,6 +96,17 @@ module AccountingService
         # 4- create credit Revenues for platform trading fees
       end
     end
+  end
+
+  def self.calculate_fee(order)
+    order.funds_received * order.fee
+  end
+
+  def self.attrs_for_fee(attrs, order)
+    currency = define_currency(order)
+    attrs[:code] = 410
+    attrs[:currency_id] = currency.id
+    attrs
   end
 
   def self.attrs_for_bid(attrs, bid, side)

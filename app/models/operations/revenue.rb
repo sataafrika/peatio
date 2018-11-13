@@ -6,18 +6,19 @@ module Operations
     belongs_to :ref, polymorphic: true
     belongs_to :currency, foreign_key: :currency_id
 
-    def self.debit!(entry)
+    def self.debit!(attrs, amount)
       # Parsing entry
-
+      attrs.delete(:credit)
       # Create with reference
-      create!(ref: entry)
+      create!(attrs)
     end
 
-    def self.credit!(entry)
+    def self.credit!(attrs, amount)
       # Parsing entry
-
+      attrs.delete(:debit)
+      attrs[:credit] = amount
       # Create with reference
-      create!(ref: entry)
+      create!(attrs)
     end
 
     def self.transfer!(entry)
