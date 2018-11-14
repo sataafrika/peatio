@@ -7,24 +7,24 @@
 #
 module AccountingService
   # Takes a {::Deposit} and creates an operation for it.
-  def self.record_deposit(deposit)
-    raise ArgumentError unless deposit.is_a?(Deposit)
-
-    if deposit.valid?
-      deposit.transaction do
-        # 1- update member account balance
-        # 2- create credit assets
-        # 3- create debit liability
-        deposit.account.plus_funds(deposit.amount)
-        attrs = { ref: deposit }
-        attrs[:currency_id] = deposit.currency_id
-        attrs[:code] = deposit.currency.coin? ? 102 : 101
-        Operations::Asset.credit!(attrs, deposit.amount)
-        attrs[:code] = deposit.currency.coin? ? 112 : 111
-        Operations::Liability.credit!(attrs, deposit.amount)
-      end
-    end
-  end
+  # def self.record_deposit(deposit)
+  #   raise ArgumentError unless deposit.is_a?(Deposit)
+  #
+  #   if deposit.valid?
+  #     deposit.transaction do
+  #       # 1- update member account balance
+  #       # 2- create credit assets
+  #       # 3- create debit liability
+  #       deposit.account.plus_funds(deposit.amount)
+  #       attrs = { ref: deposit }
+  #       attrs[:currency_id] = deposit.currency_id
+  #       attrs[:code] = deposit.currency.coin? ? 102 : 101
+  #       Operations::Asset.credit!(attrs, deposit.amount)
+  #       attrs[:code] = deposit.currency.coin? ? 112 : 111
+  #       Operations::Liability.credit!(attrs, deposit.amount)
+  #     end
+  #   end
+  # end
 
   # Takes a {::Withdraw} and creates an operation for it.
   def self.record_withdraw(withdraw)

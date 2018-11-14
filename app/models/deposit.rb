@@ -36,7 +36,10 @@ class Deposit < ActiveRecord::Base
     event(:reject) { transitions from: :submitted, to: :rejected }
     event :accept do
       transitions from: :submitted, to: :accepted
-      after :plus_funds
+      after do
+        plus_funds
+        record_operations
+      end
     end
     event :dispatch do
       transitions from: :accepted, to: :collected
@@ -83,6 +86,24 @@ class Deposit < ActiveRecord::Base
       else
         AMQPQueue.enqueue(:deposit_collection, id: id)
       end
+    end
+  end
+
+  private
+
+  # Creates dependant operations for deposit.
+  def record_operations
+    binding.pry
+    return if true
+    self.transaction do
+      # 1- create credit asset.
+      # 2- create credit liability.
+      attrs = { ref: self }
+      attrs[:currency_id] = self.currency_id
+      attrs[:code] = self.currency.coin? ? 102 : 101
+      Operations::Asset.credit!(attrs, self.amount)
+      attrs[:code] = self.currency.coin? ? 112 : 111
+      Operations::Liability.credit!(attrs, self.amount)
     end
   end
 end
