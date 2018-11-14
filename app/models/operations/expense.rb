@@ -2,10 +2,7 @@
 
 module Operations
   # {Expense} is a income statement operation
-  class Expense < Base
-    belongs_to :ref, polymorphic: true
-    belongs_to :currency, foreign_key: :currency_id
-
+  class Expense < Operation
     def self.debit!(entry)
       # Parsing entry
 
@@ -34,18 +31,18 @@ end
 #
 # Table name: expenses
 #
-#  id          :integer          not null, primary key
-#  code        :integer          not null
-#  currency_id :string(255)      not null
-#  ref_id      :integer          not null
-#  ref_type    :string(255)      not null
-#  debit       :decimal(32, 16)  default(0.0), not null
-#  credit      :decimal(32, 16)  default(0.0), not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id             :integer          not null, primary key
+#  code           :integer          not null
+#  currency_id    :string(255)      not null
+#  reference_id   :integer          not null
+#  reference_type :string(255)      not null
+#  debit          :decimal(32, 16)  default(0.0), not null
+#  credit         :decimal(32, 16)  default(0.0), not null
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
 #
 # Indexes
 #
-#  index_expenses_on_currency_id          (currency_id)
-#  index_expenses_on_ref_type_and_ref_id  (ref_type,ref_id)
+#  index_expenses_on_currency_id                      (currency_id)
+#  index_expenses_on_reference_type_and_reference_id  (reference_type,reference_id)
 #
