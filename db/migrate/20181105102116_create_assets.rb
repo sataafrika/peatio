@@ -3,7 +3,7 @@ class CreateAssets < ActiveRecord::Migration
     create_table :assets do |t|
       t.integer     :code,        null: false
       t.string      :currency_id, null: false, index: true, foreign_key: true
-      t.references  :ref,         null: false, index: true, polymorphic: true
+      t.references  :reference,         null: false, index: true, polymorphic: true
       t.decimal     :debit,       null: false, default: 0, precision: 32, scale: 16
       t.decimal     :credit,      null: false, default: 0, precision: 32, scale: 16
 
