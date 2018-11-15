@@ -4,8 +4,9 @@ module Operations
   # {Liability} is a balance sheet operation
   class Liability < Operation
     class << self
-      def credit(reference:, amount:, kind:)
-        currency = reference.currency
+      # TODO: To many params.
+      def credit(reference:, amount:, kind:, member_id: nil, currency: nil)
+        currency ||= reference.currency
         account_code = Chart.code_for(
           type: :liability,
           kind: kind,
@@ -15,12 +16,14 @@ module Operations
           credit:      amount,
           reference:   reference,
           currency_id: currency.id,
-          code:        account_code
+          code:        account_code,
+          member_id:   member_id || reference.member_id
         )
       end
 
-      def debit(reference:, amount:, kind:)
-        currency = reference.currency
+      # TODO: To many params.
+      def debit(reference:, amount:, kind:, member_id: nil, currency: nil)
+        currency ||= reference.currency
         account_code = Chart.code_for(
           type: :liability,
           kind: kind,
@@ -30,21 +33,14 @@ module Operations
           debit:       amount,
           reference:   reference,
           currency_id: currency.id,
-          code:        account_code
+          code:        account_code,
+          member_id:   member_id || reference.member_id
         )
       end
 
-      def transfer!(main, locked, attrs)
-        if attrs[:ref].is_a?(Order)
-          attrs[:code] = main
-          debit!(attrs, attrs[:ref].locked)
-          attrs[:code] = locked
-          credit!(attrs, attrs[:ref].locked)
-        else
-          raise 'Not implemented!'
-          # credit!(attrs, attrs[:ref].volume)
-        end
-        # Create with reference
+      def transfer!(reference:, amount:, from_kind:, to_kind:)
+        debit!(reference: reference, amount: amount, kind: from_kind)
+        credit!(reference: reference, amount: amount, kind: to_kind)
       end
     end
   end

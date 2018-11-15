@@ -167,17 +167,12 @@ private
   def record_submit_operations!
     transaction do
       # Debit main fiat/crypto Liability account.
-      Operations::Liability.debit!(
-        reference: self,
-        amount: sum,
-        kind: :main
-      )
-
       # Credit locked fiat/crypto Liability account.
-      Operations::Liability.credit!(
+      Operations::Liability.transfer!(
         reference: self,
         amount: sum,
-        kind: :locked
+        from_kind: :main,
+        to_kind:   :locked
       )
     end
   end
@@ -185,17 +180,12 @@ private
   def record_cancel_operations!
     transaction do
       # Debit locked fiat/crypto Liability account.
-      Operations::Liability.debit!(
-        reference: self,
-        amount: sum,
-        kind: :locked
-      )
-
       # Credit main fiat/crypto Liability account.
-      Operations::Liability.credit!(
+      Operations::Liability.transfer!(
         reference: self,
         amount: sum,
-        kind: :main
+        from_kind: :locked,
+        to_kind:   :main
       )
     end
   end
