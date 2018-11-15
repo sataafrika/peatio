@@ -3,7 +3,7 @@
 
 module Operations
   class Chart
-    # TODO: Read chart from yml.
+    # TODO: Read chart from yml ???
     CHART = [
       { code:           101,
         type:           :asset,
@@ -79,7 +79,7 @@ module Operations
 
     class << self
       def code_for(options)
-        CHART.select { |entry| entry.merge(options) == entry }
+        CHART.find { |entry| entry.merge(options) == entry }.fetch(:code)
       end
     end
   end
