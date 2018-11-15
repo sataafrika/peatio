@@ -12,7 +12,7 @@ module Operations
           currency_type: currency.type.to_sym
         )
         create!(
-          credit:       amount,
+          credit:      amount,
           reference:   reference,
           currency_id: currency.id,
           code:        account_code

@@ -98,11 +98,39 @@ class Order < ActiveRecord::Base
   end
 
   def record_submit_operations!
+    transaction do
+      # Debit main fiat/crypto Liability account.
+      Operations::Liability.debit!(
+        reference: self,
+        amount: locked,
+        kind: :main
+      )
 
+      # Credit locked fiat/crypto Liability account.
+      Operations::Liability.credit!(
+        reference: self,
+        amount: locked,
+        kind: :locked
+      )
+    end
   end
 
   def record_cancel_operations!
+    transaction do
+      # Debit locked fiat/crypto Liability account.
+      Operations::Liability.debit!(
+        reference: self,
+        amount: locked,
+        kind: :locked
+      )
 
+      # Credit main fiat/crypto Liability account.
+      Operations::Liability.credit!(
+        reference: self,
+        amount: locked,
+        kind: :main
+      )
+    end
   end
 
   private
