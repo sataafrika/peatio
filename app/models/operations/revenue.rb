@@ -4,8 +4,8 @@ module Operations
   # {Revenue} is a income statement operation
   class Revenue < Operation
     class << self
-      def credit!(reference:, amount:, kind: :main)
-        currency = reference.currency
+      def credit!(reference:, amount:, kind: :main, currency: nil)
+        currency ||= reference.currency
         account_code = Chart.code_for(
           type: :revenue,
           kind: kind,
@@ -19,7 +19,7 @@ module Operations
         )
       end
 
-      def debit!(reference:, amount:, kind: :main)
+      def debit!(reference:, amount:, kind: :main, currency: nil)
         method_not_implemented
       end
     end
