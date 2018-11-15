@@ -75,6 +75,7 @@ class Deposit < ActiveRecord::Base
     !submitted?
   end
 
+  # @deprecated
   def plus_funds
     account.plus_funds(amount)
   end
