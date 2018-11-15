@@ -46,24 +46,37 @@ module AccountingService
         description:    'Locked Crypto Liabilities Account',
         scope:          %i[member]
       },
-      { code:           410,
+      { code:           301,
+        type:           :revenue,
+        kind:           :main,
+        currency_type:  :fiat,
+        description:    'Main Fiat Revenues Account',
+        scope:          %i[platform]
+      },
+      { code:           302,
         type:           :revenue,
         kind:           :main,
         currency_type:  :coin,
-        description:    'Revenue Account',
+        description:    'Main Crypto Revenues Account',
         scope:          %i[platform]
       },
-      { code:           542,
+      { code:           401,
+        type:           :expense,
+        kind:           :main,
+        currency_type:  :fiat,
+        description:    'Main Fiat Expenses Account',
+        scope:          %i[platform]
+      },
+      { code:           402,
         type:           :expense,
         kind:           :main,
         currency_type:  :coin,
-        description:    'Expense Account',
+        description:    'Main Crypto Expenses Account',
         scope:          %i[platform]
       }
     ].freeze
 
     class << self
-      # TODO: Passing scope to options doesn't work.
       def code_for(options)
         CHART.select { |entry| entry.merge(options) == entry }
       end
