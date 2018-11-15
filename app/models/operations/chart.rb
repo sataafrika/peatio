@@ -2,7 +2,6 @@
 # frozen_string_literal: true
 
 module AccountingService
-  # Chart is singleton class.
   class Chart
     CHART = [
       { code:           101,

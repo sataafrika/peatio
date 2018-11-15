@@ -38,7 +38,7 @@ class Deposit < ActiveRecord::Base
       transitions from: :submitted, to: :accepted
       after do
         plus_funds
-        record_operations
+        record_complete_operations!
       end
     end
     event :dispatch do
@@ -92,7 +92,7 @@ class Deposit < ActiveRecord::Base
   private
 
   # Creates dependant operations for deposit.
-  def record_operations
+  def record_complete_operations!
     binding.pry
     return if true
     self.transaction do

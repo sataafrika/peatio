@@ -66,6 +66,10 @@ class Trade < ActiveRecord::Base
       price:  price.to_s || ZERO,
       amount: volume.to_s || ZERO }
   end
+
+  def record_complete_operations!
+
+  end
 end
 
 # == Schema Information

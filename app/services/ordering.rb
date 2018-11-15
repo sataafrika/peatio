@@ -34,6 +34,7 @@ private
     order.locked = order.origin_locked = order.compute_locked
     order.save!
     order.hold_account!.lock_funds!(order.locked)
+    order.record_submit_operations!
   end
 
   def do_cancel(order)
