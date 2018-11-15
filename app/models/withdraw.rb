@@ -97,7 +97,7 @@ class Withdraw < ActiveRecord::Base
       transitions from: :confirming, to: :succeed
       after do
         unlock_and_sub_funds
-        record_success_operations!
+        record_complete_operations!
       end
     end
 
@@ -165,15 +165,62 @@ private
   end
 
   def record_submit_operations!
+    transaction do
+      # Debit main fiat/crypto Liability account.
+      Operations::Liability.debit!(
+        reference: self,
+        amount: sum,
+        kind: :main
+      )
 
+      # Credit locked fiat/crypto Liability account.
+      Operations::Liability.credit!(
+        reference: self,
+        amount: sum,
+        kind: :locked
+      )
+    end
   end
 
   def record_cancel_operations!
+    transaction do
+      # Debit locked fiat/crypto Liability account.
+      Operations::Liability.debit!(
+        reference: self,
+        amount: sum,
+        kind: :locked
+      )
 
+      # Credit main fiat/crypto Liability account.
+      Operations::Liability.credit!(
+        reference: self,
+        amount: sum,
+        kind: :main
+      )
+    end
   end
 
-  def record_success_operations!
+  def record_complete_operations!
+    # Debit locked fiat/crypto Liability account.
+    Operations::Liability.debit!(
+      reference: self,
+      amount: sum,
+      kind: :locked
+    )
 
+    # Debit main fiat/crypto Asset account.
+    # NOTE: Debit amount = sum - fee.
+    Operations::Asset.debit!(
+      reference: self,
+      amount: amount
+    )
+
+    # Credit main fiat/crypto Revenue account.
+    # NOTE: Credit amount = fee.
+    Operations::Revenue.credit!(
+      reference: self,
+      amount: fee
+    )
   end
 
   def send_coins!

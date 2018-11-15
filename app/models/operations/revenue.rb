@@ -3,26 +3,25 @@
 module Operations
   # {Revenue} is a income statement operation
   class Revenue < Operation
-    def self.debit!(attrs, amount)
-      # Parsing entry
-      attrs.delete(:credit)
-      # Create with reference
-      create!(attrs)
-    end
+    class << self
+      def credit!(reference:, amount:, kind: :main)
+        currency = reference.currency
+        account_code = Chart.code_for(
+          type: :revenue,
+          kind: kind,
+          currency_type: currency.type.to_sym
+        )
+        create!(
+          credit:      amount,
+          reference:   reference,
+          currency_id: currency.id,
+          code:        account_code
+        )
+      end
 
-    def self.credit!(attrs, amount)
-      # Parsing entry
-      attrs.delete(:debit)
-      attrs[:credit] = amount
-      # Create with reference
-      create!(attrs)
-    end
-
-    def self.transfer!(entry)
-      # Parsing entry
-
-      # Create with reference
-      create!(ref: entry)
+      def debit!(reference:, amount:, kind: :main)
+        method_not_implemented
+      end
     end
   end
 end
