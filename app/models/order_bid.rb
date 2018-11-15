@@ -10,10 +10,12 @@ class OrderBid < Order
             numericality: { less_than_or_equal_to: ->(order){ order.market.max_bid }},
             if: ->(order){ order.ord_type == 'limit' && order.market.max_bid.present? }
 
+  # @deprecated
   def hold_account
     member.get_account(bid)
   end
 
+  # @deprecated
   def hold_account!
     Account.lock.find_by!(member_id: member_id, currency_id: bid)
   end

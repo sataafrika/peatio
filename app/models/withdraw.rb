@@ -149,14 +149,17 @@ class Withdraw < ActiveRecord::Base
 
 private
 
+  # @deprecated
   def lock_funds
     account.lock_funds(sum)
   end
 
+  # @deprecated
   def unlock_funds
     account.unlock_funds(sum)
   end
 
+  # @deprecated
   def unlock_and_sub_funds
     account.unlock_and_sub_funds(sum)
   end
