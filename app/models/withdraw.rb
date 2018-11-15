@@ -49,7 +49,7 @@ class Withdraw < ActiveRecord::Base
       transitions from: :prepared, to: :submitted
       after do
         lock_funds
-        record_submit_operations
+        record_submit_operations!
       end
     end
 
@@ -58,7 +58,7 @@ class Withdraw < ActiveRecord::Base
       after do
         unless aasm.from_state == :prepared
           unlock_funds
-          record_cancel_operations
+          record_cancel_operations!
         end
       end
     end
@@ -67,7 +67,7 @@ class Withdraw < ActiveRecord::Base
       transitions from: :submitted, to: :suspected
       after do
         unlock_funds
-        record_cancel_operations
+        record_cancel_operations!
       end
     end
 
@@ -79,7 +79,7 @@ class Withdraw < ActiveRecord::Base
       transitions from: %i[submitted accepted], to: :rejected
       after do
         unlock_funds
-        record_cancel_operations
+        record_cancel_operations!
       end
     end
 
@@ -97,7 +97,7 @@ class Withdraw < ActiveRecord::Base
       transitions from: :confirming, to: :succeed
       after do
         unlock_and_sub_funds
-        record_success_operations
+        record_success_operations!
       end
     end
 
@@ -105,7 +105,7 @@ class Withdraw < ActiveRecord::Base
       transitions from: %i[processing confirming], to: :failed
       after do
         unlock_funds
-        record_cancel_operations
+        record_cancel_operations!
       end
     end
   end
@@ -161,15 +161,15 @@ private
     account.unlock_and_sub_funds(sum)
   end
 
-  def record_submit_operations
+  def record_submit_operations!
 
   end
 
-  def record_cancel_operations
+  def record_cancel_operations!
 
   end
 
-  def record_success_operations
+  def record_success_operations!
 
   end
 

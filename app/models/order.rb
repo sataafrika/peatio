@@ -98,6 +98,14 @@ class Order < ActiveRecord::Base
     end
   end
 
+  def record_submit_operations!
+
+  end
+
+  def record_cancel_operations!
+
+  end
+
   private
 
   def is_limit_order?
