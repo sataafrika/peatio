@@ -1,8 +1,9 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-module AccountingService
+module Operations
   class Chart
+    # TODO: Read chart from yml.
     CHART = [
       { code:           101,
         type:           :asset,
