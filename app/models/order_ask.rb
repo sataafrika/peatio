@@ -33,6 +33,10 @@ class OrderAsk < Order
     config.fix_number_precision(:bid, funds_received / funds_used)
   end
 
+  def currency
+    Currency.find(ask)
+  end
+
   def compute_locked
     case ord_type
     when 'limit'

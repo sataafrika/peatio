@@ -33,6 +33,10 @@ class OrderBid < Order
     config.fix_number_precision(:bid, funds_used / funds_received)
   end
 
+  def currency
+    Currency.find(bid)
+  end
+
   LOCKING_BUFFER_FACTOR = '1.1'.to_d
   def compute_locked
     case ord_type
