@@ -81,7 +81,7 @@ class Trade < ActiveRecord::Base
     bid_currency = bid.currency
 
     # Debit locked fiat/crypto Liability account for member who created ask.
-    Operations::Liability.debit(
+    Operations::Liability.debit!(
       reference: self,
       amount:    ask_amount,
       kind:      :locked,
@@ -89,7 +89,7 @@ class Trade < ActiveRecord::Base
       currency:  ask_currency
     )
     # Debit locked fiat/crypto Liability account for member who created bid.
-    Operations::Liability.debit(
+    Operations::Liability.debit!(
       reference: self,
       amount:    bid_amount,
       kind:      :locked,
