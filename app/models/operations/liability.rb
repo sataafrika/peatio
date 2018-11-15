@@ -3,34 +3,49 @@
 module Operations
   # {Liability} is a balance sheet operation
   class Liability < Operation
-
-    def self.debit!(attrs, amount)
-      # Create with reference and correct attrs
-      attrs[:member_id] = attrs[:ref].member_id unless attrs[:ref].is_a?(Trade)
-      attrs.delete(:credit)
-      attrs[:debit] = amount
-      create!(attrs)
-    end
-
-    def self.credit!(attrs, amount)
-      # Create with reference and correct attrs
-      attrs[:member_id] = attrs[:ref].member_id unless attrs[:ref].is_a?(Trade)
-      attrs.delete(:debit)
-      attrs[:credit] = amount
-      create!(attrs)
-    end
-
-    def self.transfer!(main, locked, attrs)
-      if attrs[:ref].is_a?(Order)
-        attrs[:code] = main
-        debit!(attrs, attrs[:ref].locked)
-        attrs[:code] = locked
-        credit!(attrs, attrs[:ref].locked)
-      else
-        raise 'Not implemented!'
-        # credit!(attrs, attrs[:ref].volume)
+    class << self
+      def credit(reference:, amount:, kind:)
+        currency = reference.currency
+        account_code = Chart.code_for(
+          type: :liability,
+          kind: kind,
+          currency_type: currency.type.to_sym
+        )
+        create!(
+          credit:       amount,
+          reference:   reference,
+          currency_id: currency.id,
+          code:        account_code
+        )
       end
-      # Create with reference
+
+      def debit(reference:, amount:, kind:)
+        currency = reference.currency
+        account_code = Chart.code_for(
+          type: :liability,
+          kind: kind,
+          currency_type: currency.type.to_sym
+        )
+        create!(
+          debit:       amount,
+          reference:   reference,
+          currency_id: currency.id,
+          code:        account_code
+        )
+      end
+
+      def transfer!(main, locked, attrs)
+        if attrs[:ref].is_a?(Order)
+          attrs[:code] = main
+          debit!(attrs, attrs[:ref].locked)
+          attrs[:code] = locked
+          credit!(attrs, attrs[:ref].locked)
+        else
+          raise 'Not implemented!'
+          # credit!(attrs, attrs[:ref].volume)
+        end
+        # Create with reference
+      end
     end
   end
 end

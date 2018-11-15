@@ -94,17 +94,16 @@ class Deposit < ActiveRecord::Base
 
   # Creates dependant operations for deposit.
   def record_complete_operations!
-    binding.pry
-    return if true
-    self.transaction do
-      # 1- create credit asset.
-      # 2- create credit liability.
-      attrs = { ref: self }
-      attrs[:currency_id] = self.currency_id
-      attrs[:code] = self.currency.coin? ? 102 : 101
-      Operations::Asset.credit!(attrs, self.amount)
-      attrs[:code] = self.currency.coin? ? 112 : 111
-      Operations::Liability.credit!(attrs, self.amount)
+    transaction do
+      # Credit main fiat/crypto Asset account.
+      Operations::Asset.credit!(reference: self, amount: amount)
+
+      # Credit main fiat/crypto Liability account.
+      Operations::Liability.credit!(
+        reference: self,
+        amount: amount,
+        kind: :main
+      )
     end
   end
 end

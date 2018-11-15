@@ -3,26 +3,38 @@
 module Operations
   # {Asset} is a balance sheet operation
   class Asset < Operation
-    validates :code, numericality: { greater_than_or_equal_to: 101, less_than: 199 }
+    # validates :code, numericality: { greater_than_or_equal_to: 101, less_than: 199}
 
-    def self.debit!(attributes, amount)
-      # Create with reference and correct attributes
-      attributes[:debit] = amount
-      create!(attributes)
-    end
+    class << self
+      def credit!(reference:, amount:, kind: :main)
+        currency = reference.currency
+        account_code = Chart.code_for(
+          type: :assets,
+          kind: kind,
+          currency_type: currency.type.to_sym
+        )
+        create!(
+          credit:      amount,
+          reference:   reference,
+          currency_id: currency.id,
+          code:        account_code
+        )
+      end
 
-    def self.credit!(attributes, amount)
-      # Create with reference and correct attributes
-      attributes[:credit] = amount
-      create!(attributes)
-    end
-
-    def self.transfer!(entry)
-      raise 'This method not implemented for Assets!'
-      # Parsing entry
-
-      # Create with reference
-      create!(ref: entry)
+      def debit!(reference:, amount:, kind: :main)
+        currency = reference.currency
+        account_code = Chart.code_for(
+          type: :assets,
+          kind: kind,
+          currency_type: currency.type.to_sym
+        )
+        create!(
+          debit:       amount,
+          reference:   reference,
+          currency_id: currency.id,
+          code:        account_code
+        )
+      end
     end
   end
 end
