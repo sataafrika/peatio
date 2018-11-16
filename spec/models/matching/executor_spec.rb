@@ -104,7 +104,7 @@ describe Matching::Executor do
       AccountingService.record_order(ask)
       AccountingService.record_order(bid)
       AccountingService.record_trade(trade)
-      binding.pry
+      # binding.pry
       expect(ask.reload.state).to eq Order::DONE
       expect(bid.reload.state).not_to eq Order::DONE
     end

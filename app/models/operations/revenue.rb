@@ -6,7 +6,7 @@ module Operations
     class << self
       def credit!(reference:, amount:, kind: :main, currency: nil)
         currency ||= reference.currency
-        account_code = Chart.code_for(
+        account_code = Operations::Chart.code_for(
           type: :revenue,
           kind: kind,
           currency_type: currency.type.to_sym

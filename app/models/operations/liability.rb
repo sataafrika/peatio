@@ -5,10 +5,9 @@ module Operations
   class Liability < Operation
     class << self
       # TODO: To many params.
-      def credit(reference:, amount:, kind:, member_id: nil, currency: nil)
+      def credit!(reference:, amount:, kind:, member_id: nil, currency: nil)
         currency ||= reference.currency
-        binding.pry
-        account_code = Chart.code_for(
+        account_code = Operations::Chart.code_for(
           type: :liability,
           kind: kind,
           currency_type: currency.type.to_sym
@@ -25,7 +24,7 @@ module Operations
       # TODO: To many params.
       def debit!(reference:, amount:, kind:, member_id: nil, currency: nil)
         currency ||= reference.currency
-        account_code = Chart.code_for(
+        account_code = Operations::Chart.code_for(
           type: :liability,
           kind: kind,
           currency_type: currency.type.to_sym
@@ -40,7 +39,6 @@ module Operations
       end
 
       def transfer!(reference:, amount:, from_kind:, to_kind:)
-        binding.pry
         debit!(reference: reference, amount: amount, kind: from_kind)
         credit!(reference: reference, amount: amount, kind: to_kind)
       end
