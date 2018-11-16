@@ -70,17 +70,15 @@ class Trade < ActiveRecord::Base
   end
 
   def record_complete_operations!
-    ask_fee = funds * ask.fee
-    bid_fee = volume * bid.fee
+    record_liability_debit!
+    record_liability_credit!
+    record_revenues!
+  end
 
+  private
+  def record_liability_debit!
     ask_amount = funds
     bid_amount = volume
-
-    ask_income = ask_amount - ask_fee
-    bid_income = bid_amount - bid_fee
-
-    ask_currency = ask.currency
-    bid_currency = bid.currency
 
     # Debit locked fiat/crypto Liability account for member who created ask.
     Operations::Liability.debit!(
@@ -88,7 +86,7 @@ class Trade < ActiveRecord::Base
       amount:    ask_amount,
       kind:      :locked,
       member_id: ask.member_id,
-      currency:  ask_currency
+      currency:  ask.currency
     )
     # Debit locked fiat/crypto Liability account for member who created bid.
     Operations::Liability.debit!(
@@ -96,8 +94,13 @@ class Trade < ActiveRecord::Base
       amount:    bid_amount,
       kind:      :locked,
       member_id: bid.member_id,
-      currency:  bid_currency
+      currency:  bid.currency
     )
+  end
+
+  def record_liability_credit!
+    ask_income = ask.amount - ask.amount * ask.fee
+    bid_income = bid.amount - bid.amount * bid.fee
 
     # Credit main fiat/crypto Liability account for member who created ask.
     Operations::Liability.credit!(
@@ -105,7 +108,7 @@ class Trade < ActiveRecord::Base
       amount:    bid_income,
       kind:      :main,
       member_id: ask.member_id,
-      currency:  bid_currency
+      currency:  bid.currency
     )
 
     # Credit main fiat/crypto Liability account for member who created bid.
@@ -114,23 +117,28 @@ class Trade < ActiveRecord::Base
       amount:    ask_income,
       kind:      :main,
       member_id: bid.member_id,
-      currency:  ask_currency
+      currency:  ask.currency
     )
+  end
+
+  def record_revenues!
+    ask_fee = funds * ask.fee
+    bid_fee = volume * bid.fee
 
     # Credit main fiat/crypto Revenue account.
     Operations::Revenue.credit!(
       reference: self,
       amount:    ask_fee,
       kind:      :main,
-      currency:  ask_currency
+      currency:  ask.currency
     )
 
     # Credit main fiat/crypto Revenue account.
-    Operations::Liability.credit!(
+    Operations::Revenue.credit!(
       reference: self,
       amount:    bid_fee,
       kind:      :main,
-      currency:  bid_currency
+      currency:  bid.currency
     )
   end
 end

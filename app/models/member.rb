@@ -122,6 +122,26 @@ class Member < ActiveRecord::Base
     self.class.trigger_pusher_event(self, event, data)
   end
 
+  def liability_main_balance(currency)
+    account_code = Operations::Chart.code_for(
+      type: :liability,
+      kind: :main,
+      currency_type: currency.type.to_sym
+    )
+    liabilities = Operations::Liability.where(member_id: id, currency: currency, code: account_code)
+    liabilities.sum(:credit) - liabilities.sum(:debit)
+  end
+
+  def liability_locked_balance(currency)
+    account_code = Operations::Chart.code_for(
+      type: :liability,
+      kind: :locked,
+      currency_type: currency.type.to_sym
+    )
+    liabilities = Operations::Liability.where(member_id: id, currency: currency, code: account_code)
+    liabilities.sum(:credit) - liabilities.sum(:debit)
+  end
+
 private
 
   def downcase_email
