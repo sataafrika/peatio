@@ -9,7 +9,7 @@ module Operations
       def credit!(reference:, amount:, kind: :main)
         currency = reference.currency
         account_code = Operations::Chart.code_for(
-          type: :assets,
+          type: :asset,
           kind: kind,
           currency_type: currency.type.to_sym
         )
@@ -24,7 +24,7 @@ module Operations
       def debit!(reference:, amount:, kind: :main)
         currency = reference.currency
         account_code = Operations::Chart.code_for(
-          type: :assets,
+          type: :asset,
           kind: kind,
           currency_type: currency.type.to_sym
         )
