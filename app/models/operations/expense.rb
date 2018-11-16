@@ -3,25 +3,8 @@
 module Operations
   # {Expense} is a income statement operation
   class Expense < Operation
-    def self.debit!(entry)
-      # Parsing entry
+    class << self
 
-      # Create with reference
-      create!(ref: entry)
-    end
-
-    def self.credit!(entry)
-      # Parsing entry
-
-      # Create with reference
-      create!(ref: entry)
-    end
-
-    def self.transfer!(entry)
-      # Parsing entry
-
-      # Create with reference
-      create!(ref: entry)
     end
   end
 end

@@ -168,7 +168,6 @@ private
     transaction do
       # Debit main fiat/crypto Liability account.
       # Credit locked fiat/crypto Liability account.
-      # binding.pry
       Operations::Liability.transfer!(
         reference: self,
         amount: sum,
