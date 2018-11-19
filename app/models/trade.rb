@@ -77,8 +77,8 @@ class Trade < ActiveRecord::Base
 
   private
   def record_liability_debit!
-    ask_amount = funds
-    bid_amount = volume
+    ask_amount = volume
+    bid_amount = funds
 
     # Debit locked fiat/crypto Liability account for member who created ask.
     Operations::Liability.debit!(
@@ -99,8 +99,8 @@ class Trade < ActiveRecord::Base
   end
 
   def record_liability_credit!
-    ask_income = funds - funds * ask.fee
-    bid_income = volume - volume * bid.fee
+    ask_income = volume - volume * ask.fee
+    bid_income = funds - funds * bid.fee
 
     # Credit main fiat/crypto Liability account for member who created ask.
     Operations::Liability.credit!(
@@ -119,11 +119,24 @@ class Trade < ActiveRecord::Base
       member_id: bid.member_id,
       currency:  ask.currency
     )
+
+    # Unlock unused funds.
+    [bid, ask].each do |order|
+      if order.volume.zero?
+        Operations::Liability.credit!(
+          reference: self,
+          amount:    order.locked,
+          kind:      :main,
+          member_id: order.member_id,
+          currency:  order.currency
+        )
+      end
+    end
   end
 
   def record_revenues!
-    ask_fee = funds * ask.fee
-    bid_fee = volume * bid.fee
+    ask_fee = volume * ask.fee
+    bid_fee = funds * bid.fee
 
     # Credit main fiat/crypto Revenue account.
     Operations::Revenue.credit!(
