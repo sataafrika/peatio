@@ -134,19 +134,6 @@ class Trade < ActiveRecord::Base
       member_id: bid.member_id,
       currency:  ask.currency
     )
-
-    # Unlock unused funds.
-    [bid, ask].each do |order|
-      if order.volume.zero?
-        Operations::Liability.credit!(
-          reference: self,
-          amount:    order.locked,
-          kind:      :main,
-          member_id: order.member_id,
-          currency:  order.currency
-        )
-      end
-    end
   end
 
   def record_revenues!
