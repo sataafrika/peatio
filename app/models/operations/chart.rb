@@ -79,7 +79,8 @@ module Operations
 
     class << self
       def code_for(options)
-        CHART.find { |entry| entry.merge(options) == entry }.fetch(:code)
+        CHART.find { |entry| entry.merge(options) == entry }
+          .fetch(:code) { raise Operations::Exception, "Account for #{options} doesn't exists." }
       end
     end
   end
