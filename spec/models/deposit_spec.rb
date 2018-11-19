@@ -51,7 +51,28 @@ describe Deposit do
     expect(record.tid).to eq record.tid.upcase
   end
 
-  describe 'kek' do
+  describe '#accept!' do
+    describe '#record_complete_operations!' do
+      subject { deposit.accept! }
+      it 'creates single asset operation' do
+        expect{ subject }.to change{ Operations::Asset.count }.by(1)
+      end
 
+      it 'creates asset operation with correct credit amount' do
+        subject
+        asset_operation = Operations::Asset.find_by(reference: deposit)
+        expect(asset_operation.credit).to eq(deposit.amount)
+      end
+
+      it 'creates single liability operation' do
+        expect{ subject }.to change{ Operations::Liability.count }.by(1)
+      end
+
+      it 'creates liability operation with correct credit amount' do
+        subject
+        liability_operation = Operations::Liability.find_by(reference: deposit)
+        expect(liability_operation.credit).to eq(deposit.amount)
+      end
+    end
   end
 end
