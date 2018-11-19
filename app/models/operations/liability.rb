@@ -38,9 +38,9 @@ module Operations
         )
       end
 
-      def transfer!(reference:, amount:, from_kind:, to_kind:)
-        debit!(reference: reference, amount: amount, kind: from_kind)
-        credit!(reference: reference, amount: amount, kind: to_kind)
+      def transfer!(reference:, amount:, from_kind:, to_kind:, member_id: nil, currency: nil)
+        debit!(reference: reference, amount: amount, kind: from_kind, member_id: member_id, currency: currency)
+        credit!(reference: reference, amount: amount, kind: to_kind, member_id: member_id, currency: currency)
       end
     end
   end
