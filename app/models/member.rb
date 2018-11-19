@@ -122,24 +122,24 @@ class Member < ActiveRecord::Base
     self.class.trigger_pusher_event(self, event, data)
   end
 
-  def liability_main_balance(currency)
+  def balance_for(currency:, kind:)
     account_code = Operations::Chart.code_for(
       type: :liability,
-      kind: :main,
+      kind: kind,
       currency_type: currency.type.to_sym
     )
     liabilities = Operations::Liability.where(member_id: id, currency: currency, code: account_code)
     liabilities.sum(:credit) - liabilities.sum(:debit)
   end
 
-  def liability_locked_balance(currency)
-    account_code = Operations::Chart.code_for(
-      type: :liability,
-      kind: :locked,
-      currency_type: currency.type.to_sym
-    )
-    liabilities = Operations::Liability.where(member_id: id, currency: currency, code: account_code)
-    liabilities.sum(:credit) - liabilities.sum(:debit)
+  def legacy_balance_for(currency:, kind:)
+    if kind.to_sym == :main
+      ac(currency).balance
+    elsif kind.to_sym == :locked
+      ac(currency).locked
+    else
+      raise Operations::Exception, "Account for #{options} doesn't exists."
+    end
   end
 
 private

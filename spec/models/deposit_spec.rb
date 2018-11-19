@@ -53,25 +53,37 @@ describe Deposit do
 
   describe '#accept!' do
     describe '#record_complete_operations!' do
-      subject { deposit.accept! }
+      subject { deposit }
       it 'creates single asset operation' do
-        expect{ subject }.to change{ Operations::Asset.count }.by(1)
+        expect{ subject.accept! }.to change{ Operations::Asset.count }.by(1)
       end
 
-      it 'creates asset operation with correct credit amount' do
-        subject
-        asset_operation = Operations::Asset.find_by(reference: deposit)
-        expect(asset_operation.credit).to eq(deposit.amount)
+      it 'credits assets with correct amount' do
+        subject.accept!
+        asset_operation = Operations::Asset.find_by(reference: subject)
+        expect(asset_operation.credit).to eq(subject.amount)
       end
 
       it 'creates single liability operation' do
-        expect{ subject }.to change{ Operations::Liability.count }.by(1)
+        expect{ subject.accept! }.to change{ Operations::Liability.count }.by(1)
       end
 
-      it 'creates liability operation with correct credit amount' do
-        subject
-        liability_operation = Operations::Liability.find_by(reference: deposit)
-        expect(liability_operation.credit).to eq(deposit.amount)
+      it 'credits liabilities with correct amount' do
+        subject.accept!
+        liability_operation = Operations::Liability.find_by(reference: subject)
+        expect(liability_operation.credit).to eq(subject.amount)
+      end
+
+      it 'credits both legacy and operations based member balance' do
+        subject.accept!
+
+        %i[main locked].each do |kind|
+          expect(
+            subject.member.balance_for(currency: subject.currency, kind: kind)
+          ).to eq(
+            subject.member.legacy_balance_for(currency: subject.currency, kind: kind)
+          )
+        end
       end
     end
   end
