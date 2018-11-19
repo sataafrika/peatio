@@ -164,6 +164,7 @@ module Matching
       elsif order.ord_type == 'market' && order.locked.zero?
         # Partially filled market order has run out it's locked funds.
         order.state = Order::CANCEL
+        order.record_cancel_operations!
       end
     end
   end
