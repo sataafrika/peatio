@@ -50,4 +50,8 @@ describe Deposit do
     record = create(:deposit_btc)
     expect(record.tid).to eq record.tid.upcase
   end
+
+  describe 'kek' do
+
+  end
 end
