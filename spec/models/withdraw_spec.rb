@@ -153,17 +153,45 @@ describe Withdraw do
       expect(subject.prepared?).to be true
     end
 
-    it 'transitions to :submitted after calling #submit!' do
-      subject.submit!
-      expect(subject.submitted?).to be true
-      expect(subject.sum).to eq subject.account.locked
-    end
-
     it 'transitions to :rejected after calling #reject!' do
       subject.submit!
       subject.reject!
 
       expect(subject.rejected?).to be true
+    end
+
+    context :submit do
+      it 'transitions to :submitted after calling #submit!' do
+        subject.submit!
+        expect(subject.submitted?).to be true
+        expect(subject.sum).to eq subject.account.locked
+      end
+
+      it 'creates two liability operations' do
+        expect{ subject.submit! }.to change{ Operations::Liability.count }.by(2)
+      end
+
+      it 'debits main liabilities for member' do
+        subject.submit!
+
+      end
+
+      it 'credits locked liabilities for member' do
+
+      end
+
+      it 'debits both legacy and operations based member balance' do
+        subject.submit!
+
+        binding.pry
+        %i[main locked].each do |kind|
+          expect(
+            subject.member.balance_for(currency: subject.currency, kind: kind)
+          ).to eq(
+            subject.member.legacy_balance_for(currency: subject.currency, kind: kind)
+          )
+        end
+      end
     end
 
     context :process do
