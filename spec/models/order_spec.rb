@@ -76,38 +76,6 @@ describe Order, '#done', type: :model do
   end
 end
 
-describe Order, '#head' do
-  let(:currency) { :btcusd }
-
-  describe OrderAsk do
-    it 'price priority' do
-      foo = create(:order_ask, price: '1.0'.to_d, created_at: 2.second.ago)
-      create(:order_ask, price: '1.1'.to_d, created_at: 1.second.ago)
-      expect(OrderAsk.head(currency)).to eql foo
-    end
-
-    it 'time priority' do
-      foo = create(:order_ask, price: '1.0'.to_d, created_at: 2.second.ago)
-      create(:order_ask, price: '1.0'.to_d, created_at: 1.second.ago)
-      expect(OrderAsk.head(currency)).to eql foo
-    end
-  end
-
-  describe OrderBid do
-    it 'price priority' do
-      foo = create(:order_bid, price: '1.1'.to_d, created_at: 2.second.ago)
-      create(:order_bid, price: '1.0'.to_d, created_at: 1.second.ago)
-      expect(OrderBid.head(currency)).to eql foo
-    end
-
-    it 'time priority' do
-      foo = create(:order_bid, price: '1.0'.to_d, created_at: 2.second.ago)
-      create(:order_bid, price: '1.0'.to_d, created_at: 1.second.ago)
-      expect(OrderBid.head(currency)).to eql foo
-    end
-  end
-end
-
 describe Order, '#kind' do
   it 'should be ask for ask order' do
     expect(OrderAsk.new.kind).to eq 'ask'
@@ -203,4 +171,44 @@ describe Order, '#estimate_required_funds' do
     global.stubs(:asks).returns(price_levels)
     Global.stubs(:[]).returns(global)
   end
+end
+
+describe Order, '#record_submit_operations!' do
+  subject { create(:order_ask) }
+
+  it 'creates two liability operations' do
+    expect{ subject.record_submit_operations! }.to change{ Operations::Liability.count }.by(2)
+  end
+
+  it 'doesn\'t create asset operations' do
+    expect{ subject.record_submit_operations! }.to_not change{ Operations::Asset.count }
+  end
+
+  it 'debits main liabilities for member' do
+    expect{ subject.record_submit_operations! }.to change {
+      subject.member.balance_for(currency: subject.currency, kind: :main)
+    }.by(-subject.locked)
+  end
+
+  it 'credits locked liabilities for member' do
+    expect{ subject.record_submit_operations! }.to change {
+      subject.member.balance_for(currency: subject.currency, kind: :locked)
+    }.by(subject.locked)
+  end
+
+  it 'updates both legacy and operations based member balance' do
+    subject.record_submit_operations!
+
+    %i[main locked].each do |kind|
+      expect(
+          subject.member.balance_for(currency: subject.currency, kind: kind)
+      ).to eq(
+               subject.member.legacy_balance_for(currency: subject.currency, kind: kind)
+           )
+    end
+  end
+end
+
+describe Order, '#record_cancel_operations!' do
+
 end
