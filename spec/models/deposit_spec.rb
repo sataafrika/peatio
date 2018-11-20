@@ -51,8 +51,8 @@ describe Deposit do
     expect(record.tid).to eq record.tid.upcase
   end
 
-  describe '#accept!' do
-    describe '#record_complete_operations!' do
+  context :accept do
+    context :record_complete_operations! do
       subject { deposit }
       it 'creates single asset operation' do
         expect{ subject.accept! }.to change{ Operations::Asset.count }.by(1)
