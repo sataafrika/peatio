@@ -167,29 +167,37 @@ describe Withdraw do
         expect(subject.sum).to eq subject.account.locked
       end
 
-      it 'creates two liability operations' do
-        expect{ subject.submit! }.to change{ Operations::Liability.count }.by(2)
-      end
+      context :record_complete_operations! do
+        it 'creates two liability operations' do
+          expect{ subject.submit! }.to change{ Operations::Liability.count }.by(2)
+        end
 
-      it 'debits main liabilities for member' do
-        subject.submit!
+        it 'doesn\'t create asset operations' do
+          expect{ subject.submit! }.to_not change{ Operations::Asset.count }
+        end
 
-      end
+        it 'debits main liabilities for member' do
+          expect{ subject.submit! }.to change {
+            subject.member.balance_for(currency: subject.currency, kind: :main)
+          }.by(-subject.sum)
+        end
 
-      it 'credits locked liabilities for member' do
+        it 'credits locked liabilities for member' do
+          expect{ subject.submit! }.to change {
+            subject.member.balance_for(currency: subject.currency, kind: :locked)
+          }.by(subject.sum)
+        end
 
-      end
+        it 'credits and debits both legacy and operations based member balance' do
+          subject.submit!
 
-      it 'debits both legacy and operations based member balance' do
-        subject.submit!
-
-        binding.pry
-        %i[main locked].each do |kind|
-          expect(
-            subject.member.balance_for(currency: subject.currency, kind: kind)
-          ).to eq(
-            subject.member.legacy_balance_for(currency: subject.currency, kind: kind)
-          )
+          %i[main locked].each do |kind|
+            expect(
+              subject.member.balance_for(currency: subject.currency, kind: kind)
+            ).to eq(
+              subject.member.legacy_balance_for(currency: subject.currency, kind: kind)
+            )
+          end
         end
       end
     end
@@ -284,7 +292,7 @@ describe Withdraw do
     before { Currency.any_instance.expects(:withdraw_fee).once.returns(200) }
     it 'fails validation' do
       expect(withdraw.save).to eq false
-      expect(withdraw.errors.full_messages).to eq ['Amount must be greater than 0.0']
+      expect(withdraw.errors.full_messages).to include 'Amount must be greater than 0.0'
     end
   end
 
