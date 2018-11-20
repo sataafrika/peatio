@@ -6,7 +6,6 @@ module APIv2
     extend Memoist
 
     def authenticate!
-      return Member.first
       current_user or raise Peatio::Auth::Error
     end
 
@@ -29,7 +28,6 @@ module APIv2
     end
 
     def current_user
-      return Member.first
       # JWT authentication provides member email.
       if env.key?('api_v2.authentic_member_email')
         Member.find_by_email(env['api_v2.authentic_member_email'])
