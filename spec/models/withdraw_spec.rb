@@ -167,7 +167,7 @@ describe Withdraw do
         expect(subject.sum).to eq subject.account.locked
       end
 
-      context :record_complete_operations! do
+      context :record_submit_operations! do
         it 'creates two liability operations' do
           expect{ subject.submit! }.to change{ Operations::Liability.count }.by(2)
         end
