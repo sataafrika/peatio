@@ -73,10 +73,6 @@ class Order < ActiveRecord::Base
     created_at.to_i
   end
 
-  def self.head(currency)
-    active.with_market(currency).matching_rule.first
-  end
-
   def to_matching_attributes
     { id:        id,
       market:    market_id,
