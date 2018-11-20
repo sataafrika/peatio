@@ -238,7 +238,6 @@ describe Withdraw do
         subject.cancel!
 
         expect(subject.canceled?).to be true
-        expect(subject.account.locked).to eq 0
       end
 
       it 'transitions from :submitted to :canceled after calling #cancel!' do
@@ -246,7 +245,6 @@ describe Withdraw do
         subject.cancel!
 
         expect(subject.canceled?).to be true
-        expect(subject.account.locked).to eq 0
       end
 
       it 'transitions from :accepted to :canceled after calling #cancel!' do
@@ -255,7 +253,6 @@ describe Withdraw do
         subject.cancel!
 
         expect(subject.canceled?).to be true
-        expect(subject.account.locked).to eq 0
       end
 
       context :record_cancel_operations do
@@ -306,7 +303,6 @@ describe Withdraw do
         subject.suspect!
 
         expect(subject.suspected?).to be true
-        expect(subject.account.locked).to eq 0
       end
 
       context :record_cancel_operations do
@@ -352,9 +348,7 @@ describe Withdraw do
 
       it 'transitions from :submitted to :rejected after calling #reject!' do
         subject.reject!
-
         expect(subject.rejected?).to be true
-        expect(subject.account.locked).to eq 0
       end
 
       it 'transitions from :accepted to :rejected after calling #reject!' do
@@ -362,7 +356,6 @@ describe Withdraw do
         subject.reject!
 
         expect(subject.rejected?).to be true
-        expect(subject.account.locked).to eq 0
       end
 
       context :record_cancel_operations do
@@ -389,6 +382,57 @@ describe Withdraw do
 
         it 'updates both legacy and operations based member balance' do
           subject.reject!
+
+          %i[main locked].each do |kind|
+            expect(
+              subject.member.balance_for(currency: subject.currency, kind: kind)
+            ).to eq(
+              subject.member.legacy_balance_for(currency: subject.currency, kind: kind)
+            )
+          end
+        end
+      end
+    end
+
+    context :success do
+
+      before do
+        subject.submit!
+        subject.accept!
+        subject.process!
+        subject.dispatch!
+      end
+
+      it 'transitions from :confirming to :success after calling #success!' do
+        subject.success!
+
+        expect(subject.succeed?).to be true
+      end
+
+      context :record_complete_operations do
+
+        it 'creates single liability operation' do
+          expect{ subject.success! }.to change{ Operations::Liability.count }.by(1)
+        end
+
+        it 'creates asset operation' do
+          expect{ subject.success! }.to change{ Operations::Asset.count }.by(1)
+        end
+
+        it 'doesn\'t change main liability balance for member' do
+          expect{ subject.success! }.to_not change {
+            subject.member.balance_for(currency: subject.currency, kind: :main)
+          }
+        end
+
+        it 'debits locked liabilities for member' do
+          expect{ subject.success! }.to change {
+            subject.member.balance_for(currency: subject.currency, kind: :locked)
+          }.by(-subject.sum)
+        end
+
+        it 'updates both legacy and operations based member balance' do
+          subject.success!
 
           %i[main locked].each do |kind|
             expect(
