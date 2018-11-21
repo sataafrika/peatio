@@ -100,8 +100,8 @@ class Trade < ActiveRecord::Base
   end
 
   def record_liability_credit!
-    ask_income = volume - volume * ask.fee
-    bid_income = funds - funds * bid.fee
+    ask_income = volume - volume * bid.fee
+    bid_income = funds - funds * ask.fee
 
     # Credit main fiat/crypto Liability account for member who created ask.
     Operations::Liability.credit!(
@@ -139,8 +139,8 @@ class Trade < ActiveRecord::Base
   end
 
   def record_revenues!
-    ask_fee = volume * ask.fee
-    bid_fee = funds * bid.fee
+    ask_fee = volume * bid.fee
+    bid_fee = funds * ask.fee
 
     # Credit main fiat/crypto Revenue account.
     Operations::Revenue.credit!(
