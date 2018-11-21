@@ -100,10 +100,8 @@ describe Matching::Executor do
     let(:bid) { create(:order_bid, price: price, volume: 7.to_d, member: bob) }
 
     it 'should set ask to done only' do
-      trade = subject.execute!
-      AccountingService.record_order(ask)
-      AccountingService.record_order(bid)
-      AccountingService.record_trade(trade)
+      subject.execute!
+
       expect(ask.reload.state).to eq Order::DONE
       expect(bid.reload.state).not_to eq Order::DONE
     end
