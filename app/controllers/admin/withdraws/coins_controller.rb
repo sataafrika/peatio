@@ -17,6 +17,10 @@ module Admin
                                               .where('created_at > ?', 1.day.ago)
                                               .order(id: :desc)
                                               .includes(:member, :currency, :blockchain)
+        @pending_withdraws = ::Withdraws::Coin.where(currency: currency, aasm_state: 'accept')
+                                              .where('created_at > ?', 5.minute.ago)
+                                              .order(id: :desc)
+                                              .includes(:member, :currency, :blockchain)
       end
 
       def show

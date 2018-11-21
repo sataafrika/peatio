@@ -31,5 +31,9 @@ module WalletService
         options
       )
     end
+
+    def load_balance(address, currency)
+      client.load_balance!(address, currency)
+    end
   end
 end

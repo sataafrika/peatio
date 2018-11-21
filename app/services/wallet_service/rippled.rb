@@ -31,6 +31,10 @@ module WalletService
       )
     end
 
+    def load_balance(address, currency)
+      client.load_balance!(address, currency)
+    end
+
     private
 
     def generate_destination_tag

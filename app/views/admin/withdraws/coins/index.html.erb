@@ -1,12 +1,20 @@
 <% unless @latest_withdraws.empty? %>
   <h3>Withdraws for the last 24 hours</h3>
   <div class="card">
-    <%= render partial: 'table', locals: {withdraws: @latest_withdraws} %>
+    <%= render partial: 'table', locals: {withdraws: @pending_withdraws} %>
   </div>
 <% end %>
 <% unless @all_withdraws.empty? %>
-  <h3>All withdraws</h3>
+  <div class="row">
+    <div class="col-6">
+      <h3>All withdraws</h3>
+    </div>
+    <div class="col-6">
+      <%= link_to raw("Pending Withdraws"), new_admin_wallet_path, class: 'btn btn-primary float-right mb-3' %>
+    </div>
+  </div> 
   <div class="card">
     <%= render partial: 'table', locals: {withdraws: @all_withdraws} %>
   </div>
 <% end %>
+
