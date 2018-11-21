@@ -191,26 +191,28 @@ private
   end
 
   def record_complete_operations!
-    # Debit locked fiat/crypto Liability account.
-    Operations::Liability.debit!(
-      reference: self,
-      amount: sum,
-      kind: :locked
-    )
+    transaction do
+      # Debit locked fiat/crypto Liability account.
+      Operations::Liability.debit!(
+        reference: self,
+        amount: sum,
+        kind: :locked
+      )
 
-    # Debit main fiat/crypto Asset account.
-    # NOTE: Debit amount = sum - fee.
-    Operations::Asset.debit!(
-      reference: self,
-      amount: amount
-    )
+      # Debit main fiat/crypto Asset account.
+      # NOTE: Debit amount = sum - fee.
+      Operations::Asset.debit!(
+        reference: self,
+        amount: amount
+      )
 
-    # Credit main fiat/crypto Revenue account.
-    # NOTE: Credit amount = fee.
-    Operations::Revenue.credit!(
-      reference: self,
-      amount: fee
-    )
+      # Credit main fiat/crypto Revenue account.
+      # NOTE: Credit amount = fee.
+      Operations::Revenue.credit!(
+        reference: self,
+        amount: fee
+      )
+    end
   end
 
   def send_coins!

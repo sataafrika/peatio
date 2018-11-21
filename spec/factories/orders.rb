@@ -3,6 +3,10 @@
 
 FactoryBot.define do
   factory :order_bid do
+    before(:create) do |order|
+      create(:deposit_usd, member: order.member, amount: order.locked).accept!
+    end
+
     bid { :usd }
     ask { :btc }
     market { Market.find(:btcusd) }
@@ -17,6 +21,10 @@ FactoryBot.define do
   end
 
   factory :order_ask do
+    before(:create) do |order|
+      create(:deposit_btc, member: order.member, amount: order.locked).accept!
+    end
+
     bid { :usd }
     ask { :btc }
     market { Market.find(:btcusd) }

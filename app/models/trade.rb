@@ -68,24 +68,12 @@ class Trade < ActiveRecord::Base
   end
 
   def record_complete_operations!
-    record_liability_debit!
-    record_liability_credit!
-
-    # Unlock unused funds.
-    [bid, ask].each do |order|
-      if order.volume.zero? && !order.locked.zero?
-        Operations::Liability.transfer!(
-          reference: self,
-          amount:    order.locked,
-          from_kind: :locked,
-          to_kind:   :main,
-          member_id: order.member_id,
-          currency:  order.currency
-        )
-      end
+    transaction do
+      record_liability_debit!
+      record_liability_credit!
+      record_liability_transfer!
+      record_revenues!
     end
-
-    record_revenues!
   end
 
   private
@@ -132,6 +120,22 @@ class Trade < ActiveRecord::Base
       member_id: bid.member_id,
       currency:  ask.currency
     )
+  end
+
+  def record_liability_transfer!
+    # Unlock unused funds.
+    [bid, ask].each do |order|
+      if order.volume.zero? && !order.locked.zero?
+        Operations::Liability.transfer!(
+          reference: self,
+          amount:    order.locked,
+          from_kind: :locked,
+          to_kind:   :main,
+          member_id: order.member_id,
+          currency:  order.currency
+        )
+      end
+    end
   end
 
   def record_revenues!

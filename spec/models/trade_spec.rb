@@ -65,3 +65,7 @@ describe Trade, '#for_notify' do
     expect(trade.for_notify[:kind]).to eq 'ask'
   end
 end
+
+describe Trade, '#record_complete_operations!' do
+
+end
