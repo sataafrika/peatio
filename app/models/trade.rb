@@ -102,6 +102,8 @@ class Trade < ActiveRecord::Base
   end
 
   def record_liability_credit!
+    # We multiply ask outcome by bid fee.
+    # Fees are related to side bid or ask (not currency).
     ask_currency_income = volume - volume * bid.fee
     bid_currency_income = funds - funds * ask.fee
 

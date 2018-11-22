@@ -22,6 +22,7 @@ module Operations
       end
 
       # TODO: To many params.
+      # TODO: Validate member balance before debit.
       def debit!(reference:, amount:, kind:, member_id: nil, currency: nil)
         currency ||= reference.currency
         account_code = Operations::Chart.code_for(
