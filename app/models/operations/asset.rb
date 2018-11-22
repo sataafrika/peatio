@@ -7,7 +7,7 @@ module Operations
 
     class << self
       def credit!(reference:, amount:, kind: :main, currency: nil)
-        return nil if amount.zero?
+        return if amount.zero?
 
         currency ||= reference.currency
         account_code = Operations::Chart.code_for(
@@ -24,7 +24,7 @@ module Operations
       end
 
       def debit!(reference:, amount:, kind: :main, currency: nil)
-        return nil if amount.zero?
+        return if amount.zero?
 
         currency ||= reference.currency
         account_code = Operations::Chart.code_for(
