@@ -143,7 +143,7 @@ describe Withdraw do
   end
 
   context 'aasm_state' do
-    subject { create(:usd_withdraw, sum: 1000) }
+    subject { create(:new_usd_withdraw, :with_deposit_liability, sum: 1000) }
 
     before do
       subject.stubs(:send_withdraw_confirm_email)
