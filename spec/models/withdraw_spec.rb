@@ -442,6 +442,12 @@ describe Withdraw do
             )
           end
         end
+
+        it 'credits revenues' do
+          expect{ subject.success! }.to change {
+            Operations::Revenue.balance(currency: subject.currency)
+          }.by(subject.fee)
+        end
       end
     end
   end
