@@ -6,8 +6,10 @@ module Operations
     # validates :code, numericality: { greater_than_or_equal_to: 101, less_than: 199}
 
     class << self
-      def credit!(reference:, amount:, kind: :main)
-        currency = reference.currency
+      def credit!(reference:, amount:, kind: :main, currency: nil)
+        return nil if amount.zero?
+
+        currency ||= reference.currency
         account_code = Operations::Chart.code_for(
           type: :asset,
           kind: kind,
@@ -21,8 +23,10 @@ module Operations
         )
       end
 
-      def debit!(reference:, amount:, kind: :main)
-        currency = reference.currency
+      def debit!(reference:, amount:, kind: :main, currency: nil)
+        return nil if amount.zero?
+
+        currency ||= reference.currency
         account_code = Operations::Chart.code_for(
           type: :asset,
           kind: kind,

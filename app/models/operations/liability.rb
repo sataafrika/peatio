@@ -6,6 +6,8 @@ module Operations
     class << self
       # TODO: To many params.
       def credit!(reference:, amount:, kind:, member_id: nil, currency: nil)
+        return nil if amount.zero?
+
         currency ||= reference.currency
         account_code = Operations::Chart.code_for(
           type: :liability,
@@ -24,6 +26,8 @@ module Operations
       # TODO: To many params.
       # TODO: Validate member balance before debit.
       def debit!(reference:, amount:, kind:, member_id: nil, currency: nil)
+        return nil if amount.zero?
+
         currency ||= reference.currency
         account_code = Operations::Chart.code_for(
           type: :liability,
