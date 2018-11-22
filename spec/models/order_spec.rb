@@ -174,7 +174,7 @@ describe Order, '#estimate_required_funds' do
 end
 
 describe Order, '#record_submit_operations!' do
-  let!(:order){ create(:order_ask) }
+  let!(:order){ create(:order_ask, :with_deposit_liability) }
   subject { order }
 
   it 'creates two liability operations' do
@@ -199,7 +199,7 @@ describe Order, '#record_submit_operations!' do
 end
 
 describe Order, '#record_cancel_operations!' do
-  let!(:order){ create(:order_ask) }
+  let!(:order){ create(:order_ask, :with_deposit_liability) }
   subject { order }
   before { subject.record_submit_operations! }
 
