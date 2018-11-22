@@ -4,26 +4,7 @@ module Operations
   # {Revenue} is a income statement operation
   class Revenue < Operation
     class << self
-      def credit!(reference:, amount:, kind: :main, currency: nil)
-        return if amount.zero?
 
-        currency ||= reference.currency
-        account_code = Operations::Chart.code_for(
-          type: :revenue,
-          kind: kind,
-          currency_type: currency.type.to_sym
-        )
-        create!(
-          credit:      amount,
-          reference:   reference,
-          currency_id: currency.id,
-          code:        account_code
-        )
-      end
-
-      def debit!(reference:, amount:, kind: :main, currency: nil)
-        method_not_implemented
-      end
     end
   end
 end

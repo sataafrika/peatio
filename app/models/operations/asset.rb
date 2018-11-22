@@ -3,42 +3,8 @@
 module Operations
   # {Asset} is a balance sheet operation
   class Asset < Operation
-    # validates :code, numericality: { greater_than_or_equal_to: 101, less_than: 199}
-
     class << self
-      def credit!(reference:, amount:, kind: :main, currency: nil)
-        return if amount.zero?
 
-        currency ||= reference.currency
-        account_code = Operations::Chart.code_for(
-          type: :asset,
-          kind: kind,
-          currency_type: currency.type.to_sym
-        )
-        create!(
-          credit:      amount,
-          reference:   reference,
-          currency_id: currency.id,
-          code:        account_code
-        )
-      end
-
-      def debit!(reference:, amount:, kind: :main, currency: nil)
-        return if amount.zero?
-
-        currency ||= reference.currency
-        account_code = Operations::Chart.code_for(
-          type: :asset,
-          kind: kind,
-          currency_type: currency.type.to_sym
-        )
-        create!(
-          debit:       amount,
-          reference:   reference,
-          currency_id: currency.id,
-          code:        account_code
-        )
-      end
     end
   end
 end

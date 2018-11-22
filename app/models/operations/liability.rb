@@ -10,8 +10,8 @@ module Operations
 
         currency ||= reference.currency
         account_code = Operations::Chart.code_for(
-          type: :liability,
-          kind: kind,
+          type:          operation_type,
+          kind:          kind,
           currency_type: currency.type.to_sym
         )
         create!(
@@ -30,8 +30,8 @@ module Operations
 
         currency ||= reference.currency
         account_code = Operations::Chart.code_for(
-          type: :liability,
-          kind: kind,
+          type:          operation_type,
+          kind:          kind,
           currency_type: currency.type.to_sym
         )
         create!(
